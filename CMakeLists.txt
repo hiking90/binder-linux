@@ -23,8 +23,8 @@ add_subdirectory(android/cutils)
 add_library(binder SHARED binder/binder.cpp)
 target_link_libraries(binder cutils)
 
-# add_executable(system_uptime test/system_uptime.c)
-# target_link_libraries(system_uptime cutils)
+add_executable(test_main test/test_main.cpp)
+target_link_libraries(test_main binder)
 
 # add_test(NAME system_uptime COMMAND system_uptime)
 
