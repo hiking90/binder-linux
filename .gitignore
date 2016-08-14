@@ -1,0 +1,16 @@
+.libs
+*.dylib
+*.o
+*.so
+CMakeFiles
+CMakeCache.txt
+.build
+install_manifest.txt
+cmake_install.cmake
+*.sublime-workspace
+Makefile
+module.modulemap
+system_uptime
+Testing
+CTestTestfile.cmake
+cutils.pc
