@@ -14,14 +14,24 @@ project(binder-linux)
 # configure_file("cutils.pc.in" "cutils.pc" @ONLY)
 # configure_file("module.modulemap.in" "module.modulemap" @ONLY)
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=gnu++11 -fPIC -DPIC")
+set(CMAKE_C_FLAGS "-fPIC -DPIC")
 
-include_directories(android include)
+include_directories(android/safe_iop include)
 
-add_subdirectory(android/cutils)
+add_subdirectory(android)
 
-add_library(binder SHARED binder/binder.cpp)
-target_link_libraries(binder cutils)
+set(SRCS
+	binder/binder.cpp
+	binder/BpBinder.cpp
+	binder/IPCThreadState.cpp
+	binder/Parcel.cpp
+	binder/TextOutput.cpp
+	binder/Debug.cpp
+)
+
+add_library(binder SHARED ${SRCS})
+target_link_libraries(binder android pthread)
 
 add_executable(test_main test/test_main.cpp)
 target_link_libraries(test_main binder)

@@ -23,6 +23,7 @@
 #include <binder/TextOutput.h>
 
 #include <cutils/sched_policy.h>
+#include <cutils/threads.h>
 #include <utils/Log.h>
 #include <utils/threads.h>
 
@@ -859,7 +860,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
         IF_LOG_COMMANDS() {
             alog << "About to read/write, write size = " << mOut.dataSize() << endl;
         }
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__linux__)
         if (ioctl(mProcess->mDriverFD, BINDER_WRITE_READ, &bwr) >= 0)
             err = NO_ERROR;
         else
@@ -1165,7 +1166,7 @@ void IPCThreadState::threadDestructor(void *st)
         IPCThreadState* const self = static_cast<IPCThreadState*>(st);
         if (self) {
                 self->flushCommands();
-#if defined(__ANDROID__)
+#if defined(__ANDROID__) || defined(__linux__)
         if (self->mProcess->mDriverFD > 0) {
             ioctl(self->mProcess->mDriverFD, BINDER_THREAD_EXIT, 0);
         }

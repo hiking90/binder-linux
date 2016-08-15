@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <binder/Binder.h>
 #include <binder/BpBinder.h>
@@ -50,6 +51,10 @@
 
 #ifndef INT32_MAX
 #define INT32_MAX ((int32_t)(2147483647))
+#endif
+
+#ifndef SIZE_T_MAX
+#define SIZE_T_MAX UINT_MAX
 #endif
 
 #define LOG_REFS(...)
