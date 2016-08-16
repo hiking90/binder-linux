@@ -22,7 +22,7 @@ include_directories(android/safe_iop include)
 add_subdirectory(android)
 
 set(SRCS
-	binder/binder.cpp
+	binder/Binder.cpp
 	binder/BpBinder.cpp
 	binder/IPCThreadState.cpp
 	binder/Parcel.cpp
