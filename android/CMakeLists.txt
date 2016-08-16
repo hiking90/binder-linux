@@ -1,8 +1,9 @@
 
-include_directories(utils)
+# include_directories(utils selinux)
 
 set(SRCS 
 	safe_iop/safe_iop.c 
+	selinux/android.c
 	cutils/log.c 
 	cutils/threads.c
 	cutils/ashmem-dev.c
@@ -18,6 +19,8 @@ set(SRCS
 	utils/misc.cpp
 	utils/Static.cpp
 	utils/Threads.cpp
+	utils/SystemClock.cpp
+	utils/Timers.cpp
 )
 
 add_library(android ${SRCS})

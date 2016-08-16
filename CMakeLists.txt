@@ -17,7 +17,7 @@ project(binder-linux)
 set(CMAKE_CXX_FLAGS "-std=gnu++11 -fPIC -DPIC")
 set(CMAKE_C_FLAGS "-fPIC -DPIC")
 
-include_directories(android/safe_iop include)
+include_directories(android/safe_iop include android)
 
 add_subdirectory(android)
 
@@ -33,6 +33,8 @@ set(SRCS
     binder/ProcessState.cpp
     binder/IInterface.cpp
     binder/Status.cpp
+    binder/IServiceManager.cpp
+    binder/IPermissionController.cpp
 )
 
 add_library(binder SHARED ${SRCS})
@@ -40,6 +42,12 @@ target_link_libraries(binder android pthread bsd)
 
 add_executable(test_main test/test_main.cpp)
 target_link_libraries(test_main binder)
+
+add_executable(service_manager servicemanager/binder.c servicemanager/service_manager.c)
+target_link_libraries(service_manager binder selinux)
+
+add_executable(bctest servicemanager/binder.c servicemanager/bctest.c)
+target_link_libraries(bctest binder selinux)
 
 # add_test(NAME system_uptime COMMAND system_uptime)
 

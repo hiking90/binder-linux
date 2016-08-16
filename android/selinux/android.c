@@ -17,7 +17,7 @@ int selinux_log_callback(int type, const char *fmt, ...)
 
     switch (type) {
         case SELINUX_WARNING:
-            prio = LOG_WARNING;
+            prio = LOG_WARN;
             break;
         case SELINUX_INFO:
             prio = LOG_INFO;
