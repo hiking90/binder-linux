@@ -1,13 +1,23 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "cutils/log.h"
 
-static const char * LOG_LEVEL[6] = {
+static const char * LOG_LEVEL[] = {
     "UNKNOWN", "DEFAULT", "VERBOSE", "DEBUG  ", "INFO   ", "WARN   ", "ERROR  ", "FATAL  ", "SILENT "
 };
 
-static int _default_log_level = ANDROID_LOG_WARN;
+static int _default_log_level = ANDROID_LOG_INFO;
+
+__attribute__ ((constructor))
+static void __check_log_level() 
+{
+    const char *level = getenv("LOG_LEVEL");
+    if (level != NULL) {
+        _default_log_level = atoi(level);
+    }
+}
 
 int __android_log_print(int level, const char *tag, const char *fmt, ...)
 {
@@ -40,7 +50,9 @@ void __android_log_assert(const char *cond, const char *tag, const char *fmt, ..
     vfprintf(stderr, fmt, ap);
     va_end(ap);
 
-    fprintf(stderr, "\n");	
+    fprintf(stderr, "\n");
+
+    abort();
 }
 
 int __android_log_is_loggable(int prio, const char *tag, int def)

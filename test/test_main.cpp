@@ -10,6 +10,7 @@
 #include <binder/IInterface.h>
 
 #include <utils/Log.h>
+#include <utils/Mutex.h>
 
 using namespace android;
 
@@ -39,12 +40,29 @@ public:
         Parcel data, reply;
         data.writeInterfaceToken(ITesterListener::getInterfaceDescriptor());
         data.writeInt32(val);
-        remote()->transact(TRANSACT_CALLBACK, data, &reply, IBinder::FLAG_ONEWAY);
+        remote()->transact(TRANSACT_CALLBACK, data, &reply, 0 /*IBinder::FLAG_ONEWAY*/);
     }
 };
 
 IMPLEMENT_META_INTERFACE(TesterListener, "test.ITesterListener");
 
+class BnTesterListener : public BnInterface<ITesterListener> {
+public:
+    virtual status_t onTransact(uint32_t code, const Parcel& data,
+                                Parcel* reply, uint32_t flags = 0);
+};
+
+status_t BnTesterListener::onTransact(uint32_t code, const Parcel& data,
+    Parcel* reply, uint32_t flags)
+{
+    switch(code) {
+        case TRANSACT_CALLBACK: {
+            CHECK_INTERFACE(ITesterListener, data, reply);
+            int32_t val = data.readInt32();
+            callback(val);
+        }
+    }
+}
 
 enum {
     REGISTER_LISTENER = IBinder::FIRST_CALL_TRANSACTION,
@@ -157,34 +175,68 @@ public:
 
     virtual void registerListener(const sp<ITesterListener>& listener)
     {
-        ALOGV("registerListener");
+        ALOGI("registerListener");
+        if (listener == NULL)
+            return;
+        Mutex::Autolock _l(mLock);
+        // check whether this is a duplicate
+        for (size_t i = 0; i < mListeners.size(); i++) {
+            if (IInterface::asBinder(mListeners[i]) == IInterface::asBinder(listener)) {
+                return;
+            }
+        }
+
+        mListeners.add(listener);
+        IInterface::asBinder(listener)->linkToDeath(this);
     }
 
     virtual void unregisterListener(const sp<ITesterListener>& listener)
     {
-        ALOGV("unregisterListener");
-
+        ALOGI("unregisterListener");
+        if (listener == NULL)
+            return;
+        Mutex::Autolock _l(mLock);
+        for (size_t i = 0; i < mListeners.size(); i++) {
+            if (IInterface::asBinder(mListeners[i]) == IInterface::asBinder(listener)) {
+                IInterface::asBinder(mListeners[i])->unlinkToDeath(this);
+                mListeners.removeAt(i);
+                break;
+            }
+        }
     }
 
     virtual int32_t getVal()
     {
-        ALOGV("getVal()");
+        ALOGI("getVal()");
         return mVal;
     }
 
     virtual void setVal(int32_t val)
     {
-        ALOGV("setVal(%d)", val);
+        ALOGI("setVal(%d)", val);
         mVal = val;
+
+        Mutex::Autolock _l(mLock);
+        for (size_t i = 0; i < mListeners.size(); i++) {
+            mListeners[i]->callback(mVal);
+        }
     }
 
     virtual void binderDied(const wp<IBinder>& who)
     {
-        ALOGV("binderDied");
+        ALOGI("binderDied");
     }
 
 private:
     int32_t     mVal;
+    Mutex       mLock;
+    Vector<sp<ITesterListener> > mListeners;
+};
+
+class TesterListener : public BnTesterListener {
+    virtual void callback(int32_t val) {
+        printf("CALLBACK: %d\n", val);
+    }
 };
 
 int main(int argc, char *argv[]) {
@@ -201,9 +253,13 @@ int main(int argc, char *argv[]) {
 
         int32_t result = tester->getVal();
         printf("Init Value = %d\n", result);
+
+        sp<ITesterListener> listener = new TesterListener;
+        tester->registerListener(listener);
         tester->setVal(10);
         result = tester->getVal();
         printf("Result = %d\n", result);
+        tester->unregisterListener(listener);
     }
 	return 0;
 }
