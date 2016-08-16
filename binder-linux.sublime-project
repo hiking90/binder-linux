@@ -10,7 +10,7 @@
         {
             "file_regex": "^/home/king/devel/github/binder-linux/([^:\n]+):([0-9]+):([0-9]+): (.*)$",
             "name": "binder-linux Build Remote",
-            "shell_cmd": "ssh king@128.224.238.54 \"cd /home/king/devel/github/binder-linux && make\"",
+            "shell_cmd": "ssh king@tal \"cd /home/king/devel/github/binder-linux && make\"",
             "working_dir": "${project_path}"
         }
 	],
@@ -35,7 +35,7 @@
 			],
 			"remotes":
 			{
-				"/Users/king/work/binder-linux":
+				".":
 				[
 					{
 						"enabled": 1,
@@ -45,7 +45,7 @@
 						"options":
 						[
 						],
-						"remote_host": "128.224.238.54",
+						"remote_host": "tal",
 						"remote_path": "/home/king/devel/github/binder-linux",
 						"remote_port": 22,
 						"remote_post_command": "",

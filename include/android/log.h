@@ -137,6 +137,18 @@ void __android_log_assert(const char *cond, const char *tag,
 #endif
     ;
 
+/* possible missing definitions in unistd.h */
+
+#ifndef TEMP_FAILURE_RETRY
+/* Used to retry syscalls that can return EINTR. */
+#define TEMP_FAILURE_RETRY(exp) ({         \
+    __typeof__(exp) _rc;                   \
+    do {                                   \
+        _rc = (exp);                       \
+    } while (_rc == -1 && errno == EINTR); \
+    _rc; })
+#endif
+
 #ifdef __cplusplus
 }
 #endif

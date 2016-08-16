@@ -28,10 +28,15 @@ set(SRCS
 	binder/Parcel.cpp
 	binder/TextOutput.cpp
 	binder/Debug.cpp
+    binder/Static.cpp
+    binder/BufferedTextOutput.cpp
+    binder/ProcessState.cpp
+    binder/IInterface.cpp
+    binder/Status.cpp
 )
 
 add_library(binder SHARED ${SRCS})
-target_link_libraries(binder android pthread)
+target_link_libraries(binder android pthread bsd)
 
 add_executable(test_main test/test_main.cpp)
 target_link_libraries(test_main binder)

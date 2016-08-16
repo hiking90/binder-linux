@@ -37,7 +37,7 @@ enum {
 
 
 // void __android_log_print(int, const char *, const char *, ...);
-void __android_log_assert(const char *cond, const char *tag, const char *fmt, ...);
+// void __android_log_assert(const char *cond, const char *tag, const char *fmt, ...);
 
 /* Returns 2nd arg.  Used to substitute default value if caller's vararg list
  * is empty.

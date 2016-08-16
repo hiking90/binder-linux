@@ -24,12 +24,13 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include <string.h>
+#include <bsd/string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <linux/types.h>
 #include <linux/ashmem.h>
 
 #include <cutils/ashmem.h>
