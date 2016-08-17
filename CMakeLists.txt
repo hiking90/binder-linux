@@ -8,12 +8,6 @@ set(CMAKE_INSTALL_PREFIX "/usr/local")
 
 project(binder-linux)
 
-# find_package(PkgConfig)
-# pkg_check_modules(LIBEVENT libevent)
-
-# configure_file("cutils.pc.in" "cutils.pc" @ONLY)
-# configure_file("module.modulemap.in" "module.modulemap" @ONLY)
-
 set(CMAKE_CXX_FLAGS "-std=gnu++11 -fPIC -DPIC")
 set(CMAKE_C_FLAGS "-fPIC -DPIC")
 
@@ -49,8 +43,8 @@ target_link_libraries(service_manager binder selinux)
 add_executable(bctest servicemanager/binder.c servicemanager/bctest.c)
 target_link_libraries(bctest binder selinux)
 
-# add_test(NAME system_uptime COMMAND system_uptime)
+## aidl-cpp
+if (EXISTS "aidl-cpp/CMakeLists.txt")
+add_subdirectory(aidl-cpp)
+endif()
 
-# install (TARGETS cutils DESTINATION lib)
-# install (FILES atomic/atomic_int.h utils/system_clock.h DESTINATION include/cutils)
-# install (FILES cutils.pc DESTINATION lib/pkgconfig)

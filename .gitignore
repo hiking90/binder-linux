@@ -1,5 +1,3 @@
-.libs
-*.dylib
 *.o
 *.so
 CMakeFiles
@@ -13,4 +11,4 @@ module.modulemap
 system_uptime
 Testing
 CTestTestfile.cmake
-cutils.pc
+aidl-cpp
