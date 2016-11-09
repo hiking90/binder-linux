@@ -23,7 +23,7 @@ $ ./test_main
 
 ## Aidl for Cpp
 
-## Used Android Git Comments
+## AOSP Git Comments
 - native/include/binder   115e6ec7e93a68b753c9e859221785bd798ab5f8
 - native/libs/binder      59e086f536e1dbbbfe9cb6a1826aaddef999d5ce
 - libutils                0f39fe22ae3886cff53e48a3de0c9bf306919a9d
