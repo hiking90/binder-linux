@@ -2,29 +2,36 @@
 Goal of this project is to use Android Binder at Linux desktop environment.
 The most of source code was come from Android Source Repositories. But, the source code was modified slightly for Linux dekstop.
 
-## Prerequisites to build
+## Prerequisites to build & run
 1. Linux kernel's Binder must be enabled.
 2. libselinux must be installed. http://userspace.selinuxproject.org/
 3. CMake is used as a build system.
-4. If you want to build with aidl-cpp, please do "git clone https://github.com/hiking90/aidl-cpp.git" as a subdirectory of the project. Ex) $ cd binder-linux && git clone ... 
+
+## Prepare
+<pre>
+$ cd binder-linux
+$ source ./env.sh
+$ android_clone
+</pre>
 
 ## Build
 <pre>
-$ cmake .
-$ make
+$ cd binder-linux
+$ source ./env.sh
+$ m
 </pre>
 
 ## Testing
 <pre>
-$ ./servicemanager &
+$ cout                  # Change to output directory
+$ ./add_binder /dev/binderfs/binder-control binder
+$ chmod a+rw /dev/binderfs/binder
+$ ./servicemanager /dev/binderfs/binder &
 $ ./test_main server &
 $ ./test_main
 </pre>
 
-## Aidl for Cpp
+## Aidl
 
-## AOSP Git Comments
-- native/include/binder   115e6ec7e93a68b753c9e859221785bd798ab5f8
-- native/libs/binder      59e086f536e1dbbbfe9cb6a1826aaddef999d5ce
-- libutils                0f39fe22ae3886cff53e48a3de0c9bf306919a9d
-- libcutils               5f851752d36eb6b15ecf4e18871624810f771810
+## TODO
+Remove unnecesary libraries from build.

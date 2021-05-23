@@ -1,0 +1,15 @@
+diff --git a/generate_rust.cpp b/generate_rust.cpp
+index 3817f64..cfce496 100644
+--- a/generate_rust.cpp
++++ b/generate_rust.cpp
+@@ -353,8 +353,8 @@ bool GenerateRustInterface(const string& filename, const AidlInterface* iface,
+                            const Options& options) {
+   CodeWriterPtr code_writer = io_delegate.GetCodeWriter(filename);
+ 
+-  *code_writer << "#![allow(non_upper_case_globals)]\n";
+-  *code_writer << "#![allow(non_snake_case)]\n";
++  // *code_writer << "#![allow(non_upper_case_globals)]\n";
++  // *code_writer << "#![allow(non_snake_case)]\n";
+   // Import IBinderInternal for transact()
+   *code_writer << "#[allow(unused_imports)] use binder::IBinderInternal;\n";
+ 
