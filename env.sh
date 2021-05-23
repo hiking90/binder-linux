@@ -54,7 +54,7 @@ function m {
         mkdir -p ${BINDER_OUTDIR}
     fi
 
-    cd ${BINDER_OUTDIR} && cmake ${TOP} -G Ninja && ninja -j `nproc`
+    cd ${BINDER_OUTDIR} && cmake -DCMAKE_INSTALL_PREFIX=$HOME/local ${TOP} -G Ninja && ninja -j `nproc`
     cd -
 }
 

@@ -561,6 +561,7 @@ target_compile_options(pcre PUBLIC
 add_library(binder_linux SHARED
     $<TARGET_OBJECTS:base>
     $<TARGET_OBJECTS:binder>
+    $<TARGET_OBJECTS:binder_ndk>
     $<TARGET_OBJECTS:utils>
     $<TARGET_OBJECTS:log>
     $<TARGET_OBJECTS:cutils>
@@ -571,22 +572,23 @@ target_link_libraries(binder_linux
     pthread
 )
 
+
 # Android servicemanager daemon
 set(SERVICE_MANAGER_DIR "android/native/cmds/servicemanager")
 
-add_executable(servicemanager
+add_executable(binder_sm
     servicemanager/Access.cpp
     ${SERVICE_MANAGER_DIR}/ServiceManager.cpp
     ${SERVICE_MANAGER_DIR}/main.cpp
 )
 
-target_compile_definitions(servicemanager PRIVATE
+target_compile_definitions(binder_sm PRIVATE
     ANDROID_UTILS_REF_BASE_DISABLE_IMPLICIT_CONSTRUCTION
 )
 
-target_include_directories(servicemanager PUBLIC
+target_include_directories(binder_sm PUBLIC
     ${SERVICE_MANAGER_DIR}
-    ${LIBSELINUX_DIR}/include
+    # ${LIBSELINUX_DIR}/include
     ${GENERATED_DIR}/include
     ${BINDER_DIR}/ndk/include_cpp
     ${LIBVINTF_DIR}/include
@@ -595,26 +597,53 @@ target_include_directories(servicemanager PUBLIC
     ${HIDL_DIR}/utils/include
 )
 
-target_link_libraries(servicemanager PUBLIC
+target_link_libraries(binder_sm PUBLIC
     binder_linux
 )
 
-add_executable(add_binder
-    tools/add_binder.c
+add_executable(binder_device
+    tools/binder_device.c
 )
 
 
 aidl_parser(echo_aidl "${CMAKE_SOURCE_DIR}/test" "IBinderEcho.aidl")
 
-add_executable(test_binder
+add_executable(binder_test
     ${echo_aidl_OUTPUTS}
     test/test_main.cpp
 )
 
-target_include_directories(test_binder PUBLIC
+target_include_directories(binder_test PUBLIC
     ${GENERATED_DIR}/include
 )
 
-target_link_libraries(test_binder PUBLIC
+target_link_libraries(binder_test PUBLIC
     binder_linux
+)
+
+install(
+    TARGETS
+    binder_test
+    binder_device
+    binder_sm
+    binder_linux
+    aidl
+)
+
+install(
+    DIRECTORY
+    ${LIBLOG_DIR}/include/android
+    ${LIBLOG_DIR}/include/log
+    ${LIBLOG_DIR}/include/private
+    ${LIBUTILS_DIR}/include/utils
+    ${LIBBASE_DIR}/include/android-base
+    ${BINDER_DIR}/include/binder
+    ${BINDER_DIR}/ndk/include_cpp/android
+    ${BINDER_DIR}/ndk/include_ndk/android
+    ${BINDER_DIR}/ndk/include_platform/android
+    ${LIBSELINUX_DIR}/include/selinux
+    ${LIBCUTILS_DIR}/include/cutils
+    ${LIBCUTILS_DIR}/include/private
+
+    DESTINATION include
 )
