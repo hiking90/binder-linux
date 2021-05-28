@@ -41,14 +41,33 @@ function croot()
     fi
 }
 
-export BINDER_OUTDIR=$HOME/binder-linux-out
+function ask_outdir() {
+    read -p "Choose build output directory [out] > " DIR
+    if [ -z "$DIR" ] ; then
+        echo "set default"
+        export BINDER_OUTDIR=$(gettop)/out
+    else
+        echo $DIR
+        export BINDER_OUTDIR=$(eval echo $DIR)
+    fi
+}
+
+function check_outdir() {
+    if [ -z "$BINDER_OUTDIR" ] ; then
+        ask_outdir
+    fi
+}
+
+# export BINDER_OUTDIR=$HOME/binder-linux-out
 export TOP=$(gettop)
 
 function cout {
+    check_outdir
     cd ${BINDER_OUTDIR}
 }
 
 function m {
+    check_outdir
     echo "Build C/C++ binaries and libraries"
     if [ ! -f "${BINDER_OUTDIR}" ]; then
         mkdir -p ${BINDER_OUTDIR}
@@ -115,3 +134,6 @@ function android_pull() {
     done
     cd ${PUSH_DIR}
 }
+
+check_outdir
+echo "Out directory is [${BINDER_OUTDIR}]"
