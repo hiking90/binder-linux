@@ -5,7 +5,9 @@ The most of source code was come from Android Source Repositories. But, the sour
 ## Prerequisites to build & run
 1. Linux kernel's Binder must be enabled.
 2. libselinux must be installed. http://userspace.selinuxproject.org/
-3. CMake is used as a build system.
+3. libc++ and fmt must be installed too.
+4. CMake is used as a build system.
+5. Check if binder feature is enabled in your kernel. https://www.kernel.org/doc/html/latest/admin-guide/binderfs.html
 
 ## Prepare
 <pre>

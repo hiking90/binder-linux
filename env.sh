@@ -78,7 +78,6 @@ function m {
 }
 
 export ANDROID_DIR=$(gettop)/android
-GIT_OPTIONS="--depth 1"
 
 REPOSITORIES=(
     "https://android.googlesource.com/platform/frameworks/native"
@@ -99,13 +98,16 @@ REPOSITORIES=(
     "https://android.googlesource.com/platform/packages/modules/Gki"
 )
 
+TAG="android-12.0.0_r32"
+
 function android_clone() {
     local PUSH_DIR=`pwd`
     cd $(gettop)
     rm -rf ${ANDROID_DIR}
     mkdir -p ${ANDROID_DIR} && cd ${ANDROID_DIR}
     for R in ${REPOSITORIES[*]}; do
-        git clone ${GIT_OPTIONS} ${R}
+        # git clone ${GIT_OPTIONS} -b ${TAG} ${R}
+        git clone -c advice.detachedHead=false --depth 1 -b ${TAG} ${R}
         BASENAME=`basename ${R}`
         PATCH="$(gettop)/patches/${BASENAME}.patch"
         if [ -f ${PATCH} ]; then
