@@ -3,7 +3,7 @@ Goal of this project is to use Android Binder at Linux desktop environment.
 The most of source code was come from Android Source Repositories(Android 12). But, the source code was modified slightly for Linux dekstop.
 
 ## Prerequisites to build & run
-1. Kernel 5.16.x is required.
+1. Kernel 5.16.x is required because of the definition of BINDER_ENABLE_ONEWAY_SPAM_DETECTION.
 1. Linux kernel's Binder must be enabled. https://www.kernel.org/doc/html/latest/admin-guide/binderfs.html
 1. libselinux must be installed. http://userspace.selinuxproject.org/
 1. 'libc++' and 'fmt' must be installed too.
@@ -54,6 +54,7 @@ $ ninja install
 </pre>
 
 ## Aidl
+Although binder-linux includes 'aidl' command line, please use the official Android build too. https://developer.android.com/studio/releases/build-tools
 
 ## TODO
 Remove unnecesary libraries from build.
