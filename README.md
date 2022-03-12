@@ -21,6 +21,13 @@ $ android_clone
 $ m
 </pre>
 
+## Mounting binderfs
+Please refer following two external documents.
+
+https://www.kernel.org/doc/html/latest/admin-guide/binderfs.html#mounting-binderfs
+https://wiki.archlinux.org/title/Anbox#Mounting_binderfs
+
+
 ## Testing
 Change output directory.
 <pre>
