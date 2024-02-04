@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-
 find_package(PkgConfig)
 
 set(CMAKE_C_COMPILER clang)
@@ -133,111 +132,6 @@ target_compile_options(base PUBLIC
     -D_XOPEN_SOURCE=600
 )
 
-
-# Android processgroup
-# add_library(processgroup STATIC
-#     ${LIBPROCESSGROUP_DIR}/cgroup_map.cpp
-#     ${LIBPROCESSGROUP_DIR}/processgroup.cpp
-#     ${LIBPROCESSGROUP_DIR}/sched_policy.cpp
-#     ${LIBPROCESSGROUP_DIR}/task_profiles.cpp
-#     ${LIBPROCESSGROUP_DIR}/cgrouprc/cgroup_controller.cpp
-#     ${LIBPROCESSGROUP_DIR}/cgrouprc/cgroup_file.cpp
-#     ${LIBPROCESSGROUP_DIR}/cgrouprc_format/cgroup_controller.cpp
-# )
-
-# target_include_directories(processgroup PUBLIC
-#     ${LIBPROCESSGROUP_DIR}/cgrouprc_format/include
-#     ${LIBPROCESSGROUP_DIR}/cgrouprc/include
-#     ${LIBPROCESSGROUP_DIR}/include
-#     ${LIBPROCESSGROUP_DIR}
-# )
-
-# target_link_libraries(processgroup PUBLIC base)
-
-# Android selinux
-# add_library(selinux STATIC
-#     ${LIBSELINUX_DIR}/src/booleans.c
-#     ${LIBSELINUX_DIR}/src/callbacks.c
-#     ${LIBSELINUX_DIR}/src/freecon.c
-#     ${LIBSELINUX_DIR}/src/label_backends_android.c
-#     ${LIBSELINUX_DIR}/src/label.c
-#     ${LIBSELINUX_DIR}/src/label_support.c
-#     ${LIBSELINUX_DIR}/src/matchpathcon.c
-#     ${LIBSELINUX_DIR}/src/setrans_client.c
-#     ${LIBSELINUX_DIR}/src/sha1.c
-#     ${LIBSELINUX_DIR}/src/android/android_host.c
-#     ${LIBSELINUX_DIR}/src/avc.c
-#     ${LIBSELINUX_DIR}/src/avc_internal.c
-#     ${LIBSELINUX_DIR}/src/avc_sidtab.c
-#     ${LIBSELINUX_DIR}/src/compute_av.c
-#     ${LIBSELINUX_DIR}/src/compute_create.c
-#     ${LIBSELINUX_DIR}/src/compute_member.c
-#     ${LIBSELINUX_DIR}/src/context.c
-#     ${LIBSELINUX_DIR}/src/deny_unknown.c
-#     ${LIBSELINUX_DIR}/src/enabled.c
-#     ${LIBSELINUX_DIR}/src/fgetfilecon.c
-#     ${LIBSELINUX_DIR}/src/getenforce.c
-#     ${LIBSELINUX_DIR}/src/getfilecon.c
-#     ${LIBSELINUX_DIR}/src/get_initial_context.c
-#     ${LIBSELINUX_DIR}/src/init.c
-#     ${LIBSELINUX_DIR}/src/lgetfilecon.c
-#     ${LIBSELINUX_DIR}/src/load_policy.c
-#     ${LIBSELINUX_DIR}/src/lsetfilecon.c
-#     ${LIBSELINUX_DIR}/src/mapping.c
-#     ${LIBSELINUX_DIR}/src/procattr.c
-#     ${LIBSELINUX_DIR}/src/reject_unknown.c
-#     ${LIBSELINUX_DIR}/src/setenforce.c
-#     ${LIBSELINUX_DIR}/src/setexecfilecon.c
-#     ${LIBSELINUX_DIR}/src/setfilecon.c
-#     ${LIBSELINUX_DIR}/src/stringrep.c
-#     ${LIBSELINUX_DIR}/src/label_file.c
-#     ${LIBSELINUX_DIR}/src/regex.c
-# )
-
-# target_include_directories(selinux PUBLIC
-#     ${LIBSELINUX_DIR}/include
-#     ${LIBPCRE_DIR}/include
-# )
-
-# target_compile_options(selinux PRIVATE
-#     "-DNO_PERSISTENTLY_STORED_PATTERNS"
-#     "-DDISABLE_SETRANS"
-#     "-DDISABLE_BOOL"
-#     "-D_GNU_SOURCE"
-#     "-DNO_MEDIA_BACKEND"
-#     "-DNO_X_BACKEND"
-#     "-DNO_DB_BACKEND"
-#     "-DBUILD_HOST"
-#     "-DUSE_PCRE2"
-#     "-Wall"
-#     "-Werror"
-#     "-Wno-error=missing-noreturn"
-#     "-Wno-error=unused-function"
-#     "-Wno-error=unused-variable"
-# )
-
-# # Android backtrace
-# add_library(backtrace STATIC
-#     ${LIBBACKTRACE_DIR}/Backtrace.cpp
-#     ${LIBBACKTRACE_DIR}/BacktraceCurrent.cpp
-#     ${LIBBACKTRACE_DIR}/BacktracePtrace.cpp
-#     ${LIBBACKTRACE_DIR}/ThreadEntry.cpp
-#     ${LIBBACKTRACE_DIR}/UnwindStack.cpp
-#     ${LIBBACKTRACE_DIR}/UnwindStackMap.cpp
-#     ${LIBBACKTRACE_DIR}/BacktraceMap.cpp
-#     ${LIBPROCINFO_DIR}/process.cpp
-# )
-
-# target_include_directories(backtrace PUBLIC
-#     ${LIBBACKTRACE_DIR}/include
-#     ${LIBUNWINDSTACK_DIR}/include
-#     ${LIBPROCINFO_DIR}/include
-# )
-
-# target_compile_options(backtrace PRIVATE
-#     "-Wexit-time-destructors"
-# )
-
 # Android Binder
 set(BINDER_SRCS
     ${BINDER_DIR}/Binder.cpp
@@ -301,27 +195,14 @@ target_include_directories(binder PUBLIC
 )
 
 target_compile_options(binder PUBLIC
-    # "-D__ANDROID__"
-    # "-DANDROID_BASE_UNIQUE_FD_DISABLE_IMPLICIT_CONVERSION"
-    # "-DANDROID_UTILS_REF_BASE_DISABLE_IMPLICIT_CONSTRUCTION"
     "-DBINDER_WITH_KERNEL_IPC"
 )
-
-# target_link_libraries(binder PUBLIC
-#     base
-#     utils
-#     processgroup
-#     selinux
-#     backtrace
-# )
 
 # Android libbinder_ndk
 
 add_library(binder_ndk STATIC
     ${BINDER_DIR}/ndk/ibinder.cpp
-    # ${BINDER_DIR}/ndk/ibinder_jni.cpp
     ${BINDER_DIR}/ndk/parcel.cpp
-    # ${BINDER_DIR}/ndk/parcel_jni.cpp
     ${BINDER_DIR}/ndk/process.cpp
     ${BINDER_DIR}/ndk/stability.cpp
     ${BINDER_DIR}/ndk/status.cpp

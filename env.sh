@@ -92,7 +92,6 @@ REPOSITORIES=(
     "https://android.googlesource.com/platform/prebuilts/build-tools"
     "https://android.googlesource.com/platform/external/fmtlib"
     "https://android.googlesource.com/platform/external/googletest"
-    # "https://android.googlesource.com/platform/external/selinux"
     "https://android.googlesource.com/platform/external/pcre"
     "https://android.googlesource.com/platform/external/tinyxml2"
     "https://android.googlesource.com/platform/packages/modules/Gki"

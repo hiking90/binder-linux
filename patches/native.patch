@@ -1,5 +1,5 @@
 diff --git a/libs/binder/IMemory.cpp b/libs/binder/IMemory.cpp
-index bd974b0..0fc378b 100644
+index c6b0cb7..5e8c3f6 100644
 --- a/libs/binder/IMemory.cpp
 +++ b/libs/binder/IMemory.cpp
 @@ -17,7 +17,7 @@
@@ -11,127 +11,22 @@ index bd974b0..0fc378b 100644
  
  #include <fcntl.h>
  #include <stdint.h>
-@@ -260,7 +260,7 @@ BpMemoryHeap::BpMemoryHeap(const sp<IBinder>& impl)
- }
+@@ -37,6 +37,8 @@
  
- BpMemoryHeap::~BpMemoryHeap() {
--    int32_t heapId = mHeapId.load(memory_order_relaxed);
-+    int32_t heapId = mHeapId.load(std::memory_order_relaxed);
-     if (heapId != -1) {
-         close(heapId);
-         if (mRealHeap) {
-@@ -285,21 +285,21 @@ BpMemoryHeap::~BpMemoryHeap() {
+ #define VERBOSE   0
  
- void BpMemoryHeap::assertMapped() const
- {
--    int32_t heapId = mHeapId.load(memory_order_acquire);
-+    int32_t heapId = mHeapId.load(std::memory_order_acquire);
-     if (heapId == -1) {
-         sp<IBinder> binder(IInterface::asBinder(const_cast<BpMemoryHeap*>(this)));
-         sp<BpMemoryHeap> heap = sp<BpMemoryHeap>::cast(find_heap(binder));
-         heap->assertReallyMapped();
-         if (heap->mBase != MAP_FAILED) {
-             Mutex::Autolock _l(mLock);
--            if (mHeapId.load(memory_order_relaxed) == -1) {
-+            if (mHeapId.load(std::memory_order_relaxed) == -1) {
-                 mBase   = heap->mBase;
-                 mSize   = heap->mSize;
-                 mOffset = heap->mOffset;
--                int fd = fcntl(heap->mHeapId.load(memory_order_relaxed), F_DUPFD_CLOEXEC, 0);
-+                int fd = fcntl(heap->mHeapId.load(std::memory_order_relaxed), F_DUPFD_CLOEXEC, 0);
-                 ALOGE_IF(fd==-1, "cannot dup fd=%d",
--                        heap->mHeapId.load(memory_order_relaxed));
--                mHeapId.store(fd, memory_order_release);
-+                        heap->mHeapId.load(std::memory_order_relaxed));
-+                mHeapId.store(fd, std::memory_order_release);
-             }
-         } else {
-             // something went wrong
-@@ -310,7 +310,7 @@ void BpMemoryHeap::assertMapped() const
- 
- void BpMemoryHeap::assertReallyMapped() const
- {
--    int32_t heapId = mHeapId.load(memory_order_acquire);
-+    int32_t heapId = mHeapId.load(std::memory_order_acquire);
-     if (heapId == -1) {
- 
-         // remote call without mLock held, worse case scenario, we end up
-@@ -335,7 +335,7 @@ void BpMemoryHeap::assertReallyMapped() const
-         }
- 
-         Mutex::Autolock _l(mLock);
--        if (mHeapId.load(memory_order_relaxed) == -1) {
-+        if (mHeapId.load(std::memory_order_relaxed) == -1) {
-             int fd = fcntl(parcel_fd, F_DUPFD_CLOEXEC, 0);
-             ALOGE_IF(fd == -1, "cannot dup fd=%d, size=%zu, err=%d (%s)",
-                     parcel_fd, size, err, strerror(errno));
-@@ -354,7 +354,7 @@ void BpMemoryHeap::assertReallyMapped() const
-                 mSize = size;
-                 mFlags = flags;
-                 mOffset = offset;
--                mHeapId.store(fd, memory_order_release);
-+                mHeapId.store(fd, std::memory_order_release);
-             }
-         }
-     }
-@@ -363,7 +363,7 @@ void BpMemoryHeap::assertReallyMapped() const
- int BpMemoryHeap::getHeapID() const {
-     assertMapped();
-     // We either stored mHeapId ourselves, or loaded it with acquire semantics.
--    return mHeapId.load(memory_order_relaxed);
-+    return mHeapId.load(std::memory_order_relaxed);
- }
- 
- void* BpMemoryHeap::getBase() const {
-@@ -442,7 +442,7 @@ sp<IMemoryHeap> HeapCache::find_heap(const sp<IBinder>& binder)
-                 binder.get(), info.heap.get(),
-                 static_cast<BpMemoryHeap*>(info.heap.get())->mSize,
-                 static_cast<BpMemoryHeap*>(info.heap.get())
--                    ->mHeapId.load(memory_order_relaxed),
-+                    ->mHeapId.load(std::memory_order_relaxed),
-                 info.count);
-         ++info.count;
-         return info.heap;
-@@ -475,7 +475,7 @@ void HeapCache::free_heap(const wp<IBinder>& binder)
-                         binder.unsafe_get(), info.heap.get(),
-                         static_cast<BpMemoryHeap*>(info.heap.get())->mSize,
-                         static_cast<BpMemoryHeap*>(info.heap.get())
--                            ->mHeapId.load(memory_order_relaxed),
-+                            ->mHeapId.load(std::memory_order_relaxed),
-                         info.count);
-                 rel = mHeapCache.valueAt(i).heap;
-                 mHeapCache.removeItemsAt(i);
-@@ -506,7 +506,7 @@ void HeapCache::dump_heaps()
-         ALOGD("hey=%p, heap=%p, count=%d, (fd=%d, base=%p, size=%zu)",
-                 mHeapCache.keyAt(i).unsafe_get(),
-                 info.heap.get(), info.count,
--                h->mHeapId.load(memory_order_relaxed), h->mBase, h->mSize);
-+                h->mHeapId.load(std::memory_order_relaxed), h->mBase, h->mSize);
-     }
- }
++using namespace std;
++
+ namespace android {
+ // ---------------------------------------------------------------------------
  
 diff --git a/libs/binder/IPCThreadState.cpp b/libs/binder/IPCThreadState.cpp
-index e933f7e..2ad8b52 100644
+index da58251..9834c30 100644
 --- a/libs/binder/IPCThreadState.cpp
 +++ b/libs/binder/IPCThreadState.cpp
-@@ -47,11 +47,11 @@
- 
- #define IF_LOG_TRANSACTIONS() if (false)
- #define IF_LOG_COMMANDS() if (false)
--#define LOG_REMOTEREFS(...) 
-+#define LOG_REMOTEREFS(...)
- #define IF_LOG_REMOTEREFS() if (false)
- 
--#define LOG_THREADPOOL(...) 
--#define LOG_ONEWAY(...) 
-+#define LOG_THREADPOOL(...)
-+#define LOG_ONEWAY(...)
- 
- #else
- 
-@@ -1058,7 +1058,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
-         IF_LOG_COMMANDS() {
-             alog << "About to read/write, write size = " << mOut.dataSize() << endl;
+@@ -1162,7 +1162,7 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
+             std::string message = logStream.str();
+             ALOGI("%s", message.c_str());
          }
 -#if defined(__ANDROID__)
 +#if defined(__ANDROID__) || 1
@@ -139,20 +34,20 @@ index e933f7e..2ad8b52 100644
              err = NO_ERROR;
          else
 diff --git a/libs/binder/Parcel.cpp b/libs/binder/Parcel.cpp
-index 9795348..e29219f 100644
+index 0aca163..892630e 100644
 --- a/libs/binder/Parcel.cpp
 +++ b/libs/binder/Parcel.cpp
-@@ -192,7 +192,8 @@ status_t Parcel::finishUnflattenBinder(
- }
+@@ -202,7 +202,8 @@ status_t Parcel::finishUnflattenBinder(
  
+ #ifdef BINDER_WITH_KERNEL_IPC
  static constexpr inline int schedPolicyMask(int policy, int priority) {
 -    return (priority & FLAT_BINDER_FLAG_PRIORITY_MASK) | ((policy & 3) << FLAT_BINDER_FLAG_SCHED_POLICY_SHIFT);
 +    // return (priority & FLAT_BINDER_FLAG_PRIORITY_MASK) | ((policy & 3) << FLAT_BINDER_FLAG_SCHED_POLICY_SHIFT);
 +    return 0;
  }
+ #endif // BINDER_WITH_KERNEL_IPC
  
- status_t Parcel::flattenBinder(const sp<IBinder>& binder)
-@@ -250,7 +251,7 @@ status_t Parcel::flattenBinder(const sp<IBinder>& binder)
+@@ -267,7 +268,7 @@ status_t Parcel::flattenBinder(const sp<IBinder>& binder) {
                  obj.flags |= FLAT_BINDER_FLAG_TXN_SECURITY_CTX;
              }
              if (local->isInheritRt()) {
@@ -161,3 +56,28 @@ index 9795348..e29219f 100644
              }
              obj.hdr.type = BINDER_TYPE_BINDER;
              obj.binder = reinterpret_cast<uintptr_t>(local->getWeakRefs());
+diff --git a/libs/binder/include/binder/IInterface.h b/libs/binder/include/binder/IInterface.h
+index dc572ac..9f6a98e 100644
+--- a/libs/binder/include/binder/IInterface.h
++++ b/libs/binder/include/binder/IInterface.h
+@@ -18,7 +18,7 @@
+ 
+ #include <binder/Binder.h>
+ 
+-#include <assert.h>
++#include "binder_linux_assert.h"
+ 
+ namespace android {
+ 
+diff --git a/libs/binder/ndk/include_ndk/android/binder_status.h b/libs/binder/ndk/include_ndk/android/binder_status.h
+index 76c7aac..fa468aa 100644
+--- a/libs/binder/ndk/include_ndk/android/binder_status.h
++++ b/libs/binder/ndk/include_ndk/android/binder_status.h
+@@ -38,6 +38,7 @@ __BEGIN_DECLS
+ #define __INTRODUCED_IN(n)
+ #endif
+ 
++#define __assert
+ #ifndef __assert
+ #define __assert(a, b, c)          \
+     do {                           \
