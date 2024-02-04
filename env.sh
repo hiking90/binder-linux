@@ -98,7 +98,7 @@ REPOSITORIES=(
     "https://android.googlesource.com/platform/packages/modules/Gki"
 )
 
-TAG="android-12.0.0_r32"
+TAG="android-14.0.0_r21"
 
 function android_clone() {
     local PUSH_DIR=`pwd`

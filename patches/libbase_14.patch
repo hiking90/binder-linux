@@ -1,0 +1,13 @@
+diff --git a/include/android-base/result.h b/include/android-base/result.h
+index 3c325f2..affcdf7 100644
+--- a/include/android-base/result.h
++++ b/include/android-base/result.h
+@@ -91,7 +91,7 @@
+ 
+ #pragma once
+ 
+-#include <assert.h>
++#include "binder_linux_assert.h"
+ #include <errno.h>
+ 
+ #include <sstream>

@@ -1,0 +1,48 @@
+diff --git a/Apex.cpp b/Apex.cpp
+index 10ac444..6d10201 100644
+--- a/Apex.cpp
++++ b/Apex.cpp
+@@ -19,7 +19,7 @@
+ #include <android-base/logging.h>
+ #include <android-base/strings.h>
+ 
+-#include "com_android_apex.h"
++// #include "com_android_apex.h"
+ #include "constants-private.h"
+ 
+ using android::base::StartsWith;
+diff --git a/VintfObject.cpp b/VintfObject.cpp
+index 77b28b9..4cc5fe4 100644
+--- a/VintfObject.cpp
++++ b/VintfObject.cpp
+@@ -28,7 +28,7 @@
+ #include <android-base/strings.h>
+ #include <hidl/metadata.h>
+ 
+-#include "Apex.h"
++// #include "Apex.h"
+ #include "CompatibilityMatrix.h"
+ #include "VintfObjectUtils.h"
+ #include "constants-private.h"
+@@ -71,9 +71,9 @@ static std::unique_ptr<PropertyFetcher> createDefaultPropertyFetcher() {
+     return propertyFetcher;
+ }
+ 
+-static std::unique_ptr<ApexInterface> createDefaultApex() {
+-    return std::make_unique<details::Apex>();
+-}
++// static std::unique_ptr<ApexInterface> createDefaultApex() {
++//     return std::make_unique<details::Apex>();
++// }
+ 
+ std::shared_ptr<VintfObject> VintfObject::GetInstance() {
+     static details::LockedSharedPtr<VintfObject> sInstance{};
+@@ -1390,7 +1390,7 @@ std::unique_ptr<VintfObject> VintfObjectBuilder::buildInternal() {
+     if (!mObject->mRuntimeInfoFactory)
+         mObject->mRuntimeInfoFactory = std::make_unique<ObjectFactory<RuntimeInfo>>();
+     if (!mObject->mPropertyFetcher) mObject->mPropertyFetcher = createDefaultPropertyFetcher();
+-    if (!mObject->mApex) mObject->mApex = createDefaultApex();
++    // if (!mObject->mApex) mObject->mApex = createDefaultApex();
+     return std::move(mObject);
+ }
+ 

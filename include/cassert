@@ -1,0 +1,3 @@
+// This is a replacement of C++ cassert of Host.
+// The Android AIDL compiler always includes "cassert" when generating C++ code, 
+// which leads to conflicts in the Linux environment.

@@ -1,0 +1,53 @@
+diff --git a/libutils/include/utils/KeyedVector.h b/libutils/include/utils/KeyedVector.h
+index 5cf7a11..9701521 100644
+--- a/libutils/include/utils/KeyedVector.h
++++ b/libutils/include/utils/KeyedVector.h
+@@ -17,7 +17,7 @@
+ #ifndef ANDROID_KEYED_VECTOR_H
+ #define ANDROID_KEYED_VECTOR_H
+ 
+-#include <assert.h>
++// #include <assert.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+ 
+diff --git a/libutils/include/utils/LightRefBase.h b/libutils/include/utils/LightRefBase.h
+index 40edf67..2982116 100644
+--- a/libutils/include/utils/LightRefBase.h
++++ b/libutils/include/utils/LightRefBase.h
+@@ -45,7 +45,8 @@ public:
+     }
+     inline void decStrong(__attribute__((unused)) const void* id) const {
+         if (mCount.fetch_sub(1, std::memory_order_release) == 1) {
+-            std::atomic_thread_fence(std::memory_order_acquire);
++            // std::atomic_thread_fence(std::memory_order_acquire);
++            atomic_thread_fence(std::memory_order_acquire);
+             delete static_cast<const T*>(this);
+         }
+     }
+diff --git a/libutils/include/utils/SortedVector.h b/libutils/include/utils/SortedVector.h
+index 394db12..4497d9d 100644
+--- a/libutils/include/utils/SortedVector.h
++++ b/libutils/include/utils/SortedVector.h
+@@ -17,7 +17,7 @@
+ #ifndef ANDROID_SORTED_VECTOR_H
+ #define ANDROID_SORTED_VECTOR_H
+ 
+-#include <assert.h>
++// #include <assert.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+ 
+diff --git a/libutils/include/utils/VectorImpl.h b/libutils/include/utils/VectorImpl.h
+index 41b9f33..5444dde 100644
+--- a/libutils/include/utils/VectorImpl.h
++++ b/libutils/include/utils/VectorImpl.h
+@@ -17,7 +17,7 @@
+ #ifndef ANDROID_VECTOR_IMPL_H
+ #define ANDROID_VECTOR_IMPL_H
+ 
+-#include <assert.h>
++// #include <assert.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+ #include <utils/Errors.h>

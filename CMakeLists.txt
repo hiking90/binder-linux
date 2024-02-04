@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 3.4)
+cmake_minimum_required(VERSION 3.16)
+
 
 find_package(PkgConfig)
 
@@ -52,7 +53,7 @@ macro(aidl_parser name base_dir sources)
         set(_OUTPUT "${GENERATED_DIR}/${output_filename}")
         add_custom_command(
             OUTPUT  ${_OUTPUT}
-            COMMAND ${CMAKE_BINARY_DIR}/aidl --lang=cpp --ninja -I ${base_dir} "${base_dir}/${src}" --header_out ${GENERATED_DIR}/include -o ${GENERATED_DIR}
+            COMMAND /usr/bin/aidl --min_sdk_version=34 --version=1 --lang=cpp --ninja -I ${base_dir} "${base_dir}/${src}" --header_out ${GENERATED_DIR}/include -o ${GENERATED_DIR}
             DEPENDS ${base_dir}/${src}
             COMMENT "[AIDL] ${src} -> ${_OUTPUT}"
             VERBATIM
@@ -122,9 +123,16 @@ set(LIBASE_SRCS
     ${LIBBASE_DIR}/threads.cpp
     ${LIBBASE_DIR}/test_utils.cpp
     ${LIBBASE_DIR}/errors_unix.cpp
+    ${LIBBASE_DIR}/hex.cpp
+    ${LIBBASE_DIR}/posix_strerror_r.cpp
 )
 
 add_library(base STATIC ${LIBASE_SRCS})
+
+target_compile_options(base PUBLIC
+    -D_XOPEN_SOURCE=600
+)
+
 
 # Android processgroup
 # add_library(processgroup STATIC
@@ -251,15 +259,21 @@ set(BINDER_SRCS
     ${BINDER_DIR}/ParcelFileDescriptor.cpp
     ${BINDER_DIR}/PersistableBundle.cpp
     ${BINDER_DIR}/ProcessState.cpp
-    ${BINDER_DIR}/RpcAddress.cpp
     ${BINDER_DIR}/RpcSession.cpp
     ${BINDER_DIR}/RpcServer.cpp
     ${BINDER_DIR}/RpcState.cpp
+    ${BINDER_DIR}/RpcTransportRaw.cpp
     ${BINDER_DIR}/Static.cpp
     ${BINDER_DIR}/Stability.cpp
     ${BINDER_DIR}/Status.cpp
     ${BINDER_DIR}/TextOutput.cpp
     ${BINDER_DIR}/Utils.cpp
+    ${BINDER_DIR}/FdTrigger.cpp
+    ${BINDER_DIR}/OS.cpp
+    ${BINDER_DIR}/IPermissionController.cpp
+    ${BINDER_DIR}/ServiceManagerHost.cpp
+    ${BINDER_DIR}/UtilsHost.cpp
+    ${BINDER_DIR}/RecordedTransaction.cpp
 )
 
 set(aidl_srcs
@@ -267,6 +281,7 @@ set(aidl_srcs
     "android/os/IServiceCallback.aidl"
     "android/os/IClientCallback.aidl"
     "android/os/ServiceDebugInfo.aidl"
+    "android/os/ConnectionInfo.aidl"
 )
 aidl_parser(binder_aidl "${BINDER_DIR}/aidl" "${aidl_srcs}")
 
@@ -275,8 +290,6 @@ add_library(binder STATIC
     ${BINDER_SRCS}
 )
 
-add_dependencies(binder aidl)
-
 target_include_directories(binder PUBLIC
     ${BINDER_DIR}/include
     ${LIBPROCESSGROUP_DIR}/include
@@ -284,12 +297,14 @@ target_include_directories(binder PUBLIC
     ${LIBBACKTRACE_DIR}/include
     ${GENERATED_DIR}/include
     ${BINDER_DIR}/ndk/include_cpp
+    ${CMAKE_SOURCE_DIR}/include
 )
 
 target_compile_options(binder PUBLIC
     # "-D__ANDROID__"
     # "-DANDROID_BASE_UNIQUE_FD_DISABLE_IMPLICIT_CONVERSION"
     # "-DANDROID_UTILS_REF_BASE_DISABLE_IMPLICIT_CONSTRUCTION"
+    "-DBINDER_WITH_KERNEL_IPC"
 )
 
 # target_link_libraries(binder PUBLIC
@@ -382,86 +397,6 @@ target_include_directories(gtest PUBLIC
 
 target_link_libraries(gtest PUBLIC "pthread")
 
-
-# Android AIDL generator
-
-find_package(FLEX)
-find_package(BISON)
-
-set(FLEX_FOUND "True")
-set(FLEX_EXECUTABLE "${BUILD_TOOLS_DIR}/bin/flex")
-
-set(FLEX_OUT "${GENERATED_DIR}/aidl_language_l.cpp")
-set(FLEX_SRC "${AIDL_DIR}/aidl_language_l.ll")
-
-FLEX_TARGET(lexer ${FLEX_SRC} ${FLEX_OUT})
-
-set(BISON_FOUND "True")
-set(BISON_EXECUTABLE "${BUILD_TOOLS_DIR}/bin/bison")
-
-set(BISON_OUT       "${GENERATED_DIR}/aidl_language_y.cpp")
-set(BISON_DEFINES   "${GENERATED_DIR}/aidl_language_y.h")
-set(BISON_SRC       "${AIDL_DIR}/aidl_language_y.yy")
-
-BISON_TARGET(parser ${BISON_SRC} ${BISON_OUT}
-    COMPILE_FLAGS   "-d"
-    DEFINES_FILE    ${BISON_DEFINES}
-)
-
-set(AIDL_SRCS
-    ${AIDL_DIR}/aidl_checkapi.cpp
-    ${AIDL_DIR}/aidl_const_expressions.cpp
-    ${AIDL_DIR}/aidl_dumpapi.cpp
-    ${AIDL_DIR}/aidl_language.cpp
-    ${AIDL_DIR}/aidl_to_cpp_common.cpp
-    ${AIDL_DIR}/aidl_to_cpp.cpp
-    ${AIDL_DIR}/aidl_to_java.cpp
-    ${AIDL_DIR}/aidl_to_ndk.cpp
-    ${AIDL_DIR}/aidl_to_rust.cpp
-    ${AIDL_DIR}/aidl_typenames.cpp
-    ${AIDL_DIR}/aidl.cpp
-    ${AIDL_DIR}/ast_cpp.cpp
-    ${AIDL_DIR}/ast_java.cpp
-    ${AIDL_DIR}/code_writer.cpp
-    ${AIDL_DIR}/comments.cpp
-    ${AIDL_DIR}/diagnostics.cpp
-    ${AIDL_DIR}/generate_aidl_mappings.cpp
-    ${AIDL_DIR}/generate_cpp.cpp
-    ${AIDL_DIR}/generate_java_binder.cpp
-    ${AIDL_DIR}/generate_java.cpp
-    ${AIDL_DIR}/generate_ndk.cpp
-    ${AIDL_DIR}/generate_rust.cpp
-    ${AIDL_DIR}/import_resolver.cpp
-    ${AIDL_DIR}/io_delegate.cpp
-    ${AIDL_DIR}/line_reader.cpp
-    ${AIDL_DIR}/location.cpp
-    ${AIDL_DIR}/logging.cpp
-    ${AIDL_DIR}/options.cpp
-    ${AIDL_DIR}/parser.cpp
-    ${AIDL_DIR}/main.cpp
-)
-
-add_executable(aidl
-    ${FLEX_lexer_OUTPUTS}
-    ${BISON_parser_OUTPUTS}
-    ${AIDL_SRCS}
-)
-
-target_include_directories(aidl PUBLIC
-    ${AIDL_DIR}
-    ${LIBFMT_DIR}/include
-    ${LIBGTEST_DIR}/include
-    ${GENERATED_DIR}
-)
-
-# target_compile_definitions(aidl PRIVATE AIDL_CPP_BUILD)
-
-target_link_libraries(aidl PUBLIC
-    base
-    fmt
-    gtest
-)
-
 # Android vintf
 
 add_library(vintf STATIC
@@ -488,14 +423,17 @@ add_library(vintf STATIC
     ${LIBVINTF_DIR}/XmlFile.cpp
     ${LIBVINTF_DIR}/utils.cpp
     ${LIBVINTF_DIR}/RuntimeInfo-host.cpp
+    ${LIBVINTF_DIR}/FQName.cpp
+    ${LIBVINTF_DIR}/FqInstance.cpp
+    # ${LIBVINTF_DIR}/Apex.cpp
     ${ANDROID_DIR}/tinyxml2/tinyxml2.cpp
 
     ${LIBKVER_DIR}/kernel_release.cpp
     ${LIBKVER_DIR}/kmi_version.cpp
     ${LIBKVER_DIR}/utils.cpp
 
-    ${HIDL_DIR}/utils/FQName.cpp
-    ${HIDL_DIR}/utils/FqInstance.cpp
+    # ${HIDL_DIR}/utils/FQName.cpp
+    # ${HIDL_DIR}/utils/FqInstance.cpp
 
 )
 
@@ -513,38 +451,39 @@ target_include_directories(vintf PUBLIC
     ${AIDL_DIR}/metadata/include
     ${ANDROID_DIR}/tinyxml2
     ${LIBKVER_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include
 )
 
 # Android pcre
 
 add_library(pcre STATIC
-    ${LIBPCRE_DIR}/dist2/src/pcre2_auto_possess.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_compile.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_config.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_context.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_convert.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_dfa_match.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_error.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_extuni.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_find_bracket.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_maketables.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_match.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_match_data.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_jit_compile.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_newline.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_ord2utf.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_pattern_info.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_script_run.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_serialize.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_string_utils.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_study.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_substitute.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_substring.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_tables.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_ucd.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_valid_utf.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_xclass.c
-    ${LIBPCRE_DIR}/dist2/src/pcre2_chartables.c
+    ${LIBPCRE_DIR}/src/pcre2_auto_possess.c
+    ${LIBPCRE_DIR}/src/pcre2_compile.c
+    ${LIBPCRE_DIR}/src/pcre2_config.c
+    ${LIBPCRE_DIR}/src/pcre2_context.c
+    ${LIBPCRE_DIR}/src/pcre2_convert.c
+    ${LIBPCRE_DIR}/src/pcre2_dfa_match.c
+    ${LIBPCRE_DIR}/src/pcre2_error.c
+    ${LIBPCRE_DIR}/src/pcre2_extuni.c
+    ${LIBPCRE_DIR}/src/pcre2_find_bracket.c
+    ${LIBPCRE_DIR}/src/pcre2_maketables.c
+    ${LIBPCRE_DIR}/src/pcre2_match.c
+    ${LIBPCRE_DIR}/src/pcre2_match_data.c
+    ${LIBPCRE_DIR}/src/pcre2_jit_compile.c
+    ${LIBPCRE_DIR}/src/pcre2_newline.c
+    ${LIBPCRE_DIR}/src/pcre2_ord2utf.c
+    ${LIBPCRE_DIR}/src/pcre2_pattern_info.c
+    ${LIBPCRE_DIR}/src/pcre2_script_run.c
+    ${LIBPCRE_DIR}/src/pcre2_serialize.c
+    ${LIBPCRE_DIR}/src/pcre2_string_utils.c
+    ${LIBPCRE_DIR}/src/pcre2_study.c
+    ${LIBPCRE_DIR}/src/pcre2_substitute.c
+    ${LIBPCRE_DIR}/src/pcre2_substring.c
+    ${LIBPCRE_DIR}/src/pcre2_tables.c
+    ${LIBPCRE_DIR}/src/pcre2_ucd.c
+    ${LIBPCRE_DIR}/src/pcre2_valid_utf.c
+    ${LIBPCRE_DIR}/src/pcre2_xclass.c
+    ${LIBPCRE_DIR}/src/pcre2_chartables.c
 )
 
 target_include_directories(pcre PUBLIC
@@ -554,6 +493,7 @@ target_include_directories(pcre PUBLIC
 
 target_compile_options(pcre PUBLIC
     "-DHAVE_CONFIG_H"
+    "-DPCRE2_CODE_UNIT_WIDTH=8"
 )
 
 # libbinder_linux
@@ -595,6 +535,7 @@ target_include_directories(binder_sm PUBLIC
     ${AIDL_DIR}/metadata/include
     ${HIDL_DIR}/metadata/include
     ${HIDL_DIR}/utils/include
+    ${CMAKE_SOURCE_DIR}/include
 )
 
 target_link_libraries(binder_sm PUBLIC
@@ -606,28 +547,87 @@ add_executable(binder_device
 )
 
 
-aidl_parser(echo_aidl "${CMAKE_SOURCE_DIR}/test" "IBinderEcho.aidl")
+aidl_parser(echo_aidl "${CMAKE_SOURCE_DIR}/sample" "IBinderEcho.aidl")
 
-add_executable(binder_test
+add_executable(binder_sample
     ${echo_aidl_OUTPUTS}
-    test/test_main.cpp
+    sample/test_main.cpp
 )
 
-target_include_directories(binder_test PUBLIC
+target_include_directories(binder_sample PUBLIC
     ${GENERATED_DIR}/include
+    ${BINDER_DIR}/ndk/include_cpp
+    ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(binder_test PUBLIC
+target_link_libraries(binder_sample PUBLIC
+    binder_linux
+)
+
+set(aidl_test_service_aidl_srcs
+    "android/os/PersistableBundle.aidl"
+    "android/aidl/tests/BackendType.aidl"
+    "android/aidl/tests/ICppJavaTests.aidl"
+    "android/aidl/tests/INamedCallback.aidl"
+    "android/aidl/tests/INewName.aidl"
+    "android/aidl/tests/IOldName.aidl"
+    "android/aidl/tests/ITestService.aidl"
+    "android/aidl/tests/Union.aidl"
+    "android/aidl/tests/ByteEnum.aidl"
+    "android/aidl/tests/BadParcelable.aidl"
+    "android/aidl/tests/GenericStructuredParcelable.aidl"
+    "android/aidl/tests/IntEnum.aidl"
+    "android/aidl/tests/LongEnum.aidl"
+    "android/aidl/tests/ConstantExpressionEnum.aidl"
+    "android/aidl/tests/StructuredParcelable.aidl"
+    "android/aidl/tests/RecursiveList.aidl"
+    "android/aidl/tests/ICircular.aidl"
+    "android/aidl/tests/CircularParcelable.aidl"
+    "android/aidl/tests/SimpleParcelable.aidl"
+    "android/aidl/tests/extension/ExtendableParcelable.aidl"
+    "android/aidl/tests/extension/MyExt2.aidl"
+    "android/aidl/tests/extension/MyExtLike.aidl"
+    "android/aidl/tests/extension/MyExt.aidl"
+    "android/aidl/tests/nested/DeeplyNested.aidl"
+    "android/aidl/tests/nested/INestedService.aidl"
+    "android/aidl/tests/nested/ParcelableWithNested.aidl"
+    "android/aidl/fixedsizearray/FixedSizeArrayExample.aidl"
+    "android/aidl/loggable/Data.aidl"
+    "android/aidl/loggable/Enum.aidl"
+    "android/aidl/loggable/ILoggableInterface.aidl"
+    "android/aidl/loggable/Union.aidl"
+    "android/aidl/versioned/tests/BazUnion.aidl"
+    "android/aidl/versioned/tests/Foo.aidl"
+    "android/aidl/versioned/tests/IFooInterface.aidl"
+)
+
+aidl_parser(aidl_test_service_aidl "${CMAKE_SOURCE_DIR}/tests/aidl/" "${aidl_test_service_aidl_srcs}")
+
+add_executable(aidl_test_service
+    ${aidl_test_service_aidl_OUTPUTS}
+    tests/bad_parcelable.cpp
+    tests/simple_parcelable.cpp
+    tests/aidl_test_service.cpp
+)
+
+target_include_directories(aidl_test_service PUBLIC
+    ${GENERATED_DIR}/include
+    ${BINDER_DIR}/ndk/include_cpp
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}
+)
+
+target_link_libraries(aidl_test_service PUBLIC
     binder_linux
 )
 
 install(
     TARGETS
-    binder_test
+    aidl_test_service
+    binder_sample
     binder_device
     binder_sm
     binder_linux
-    aidl
 )
 
 install(
