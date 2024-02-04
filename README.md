@@ -61,7 +61,8 @@ $ ninja install
 </pre>
 
 ## Aidl
-Although binder-linux includes 'aidl' command, please use the official Android build tool. https://developer.android.com/studio/releases/build-tools
+binder-linux does not port AIDL compiler. Please use the AIDL compiler of Android build tools.
+https://developer.android.com/studio/releases/build-tools
 
 ## TODO
 Remove unnecesary libraries from build.
