@@ -5,7 +5,7 @@ The most of source code was come from Android Source Repositories(Android 14). B
 ## Prerequisites to build & run
 1. Kernel 5.16.x is required because of the definition of BINDER_ENABLE_ONEWAY_SPAM_DETECTION.
 1. Linux kernel's Binder must be enabled. https://www.kernel.org/doc/html/latest/admin-guide/binderfs.html
-1. libselinux must be installed. http://userspace.selinuxproject.org/
+1. libselinux and libsepol must be installed. http://userspace.selinuxproject.org/
 1. 'libc++' and 'fmt' must be installed too.
 1. CMake is used as a build system.
 
