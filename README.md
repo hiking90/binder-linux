@@ -1,6 +1,6 @@
 # About
 Goal of this project is to use Android Binder at Linux desktop environment.
-The most of source code was come from Android Source Repositories(Android 12). But, the source code was modified slightly for Linux dekstop.
+The most of source code was come from Android Source Repositories(Android 14). But, the source code was modified slightly for Linux dekstop.
 
 ## Prerequisites to build & run
 1. Kernel 5.16.x is required because of the definition of BINDER_ENABLE_ONEWAY_SPAM_DETECTION.
