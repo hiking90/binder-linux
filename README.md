@@ -61,7 +61,7 @@ $ ninja install
 </pre>
 
 ## Aidl
-binder-linux does not port AIDL compiler. Please use the AIDL compiler of Android build tools.
+binder-linux does not support AIDL compiler. Please use the AIDL compiler of Android build tools.
 https://developer.android.com/studio/releases/build-tools
 
 ## TODO
