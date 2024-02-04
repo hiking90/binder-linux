@@ -854,6 +854,9 @@ class VersionedService : public android::aidl::versioned::tests::BnFooInterface 
     *ret = value;
     return Status::ok();
   }
+  virtual ::android::binder::Status newApi() {
+    return Status::ok();
+  }
 };
 
 class LoggableInterfaceService : public android::aidl::loggable::BnLoggableInterface {
@@ -984,13 +987,13 @@ int Run() {
     return -1;
   }
 
-  // android::sp<VersionedService> versionedService = new VersionedService;
-  // status = defaultServiceManager()->addService(versionedService->getInterfaceDescriptor(),
-  //                                              versionedService);
-  // if (status != OK) {
-  //   ALOGE("Failed to add service %s", String8(versionedService->getInterfaceDescriptor()).c_str());
-  //   return -1;
-  // }
+  android::sp<VersionedService> versionedService = new VersionedService;
+  status = defaultServiceManager()->addService(versionedService->getInterfaceDescriptor(),
+                                               versionedService);
+  if (status != OK) {
+    ALOGE("Failed to add service %s", String8(versionedService->getInterfaceDescriptor()).c_str());
+    return -1;
+  }
 
   android::sp<LoggableInterfaceService> loggableInterfaceService = new LoggableInterfaceService;
   status = defaultServiceManager()->addService(loggableInterfaceService->getInterfaceDescriptor(),
