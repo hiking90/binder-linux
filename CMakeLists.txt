@@ -52,7 +52,7 @@ macro(aidl_parser name base_dir sources)
         set(_OUTPUT "${GENERATED_DIR}/${output_filename}")
         add_custom_command(
             OUTPUT  ${_OUTPUT}
-            COMMAND /usr/bin/aidl --min_sdk_version=34 --version=1 --lang=cpp --ninja -I ${base_dir} "${base_dir}/${src}" --header_out ${GENERATED_DIR}/include -o ${GENERATED_DIR}
+            COMMAND ${BUILD_TOOLS_DIR}/bin/aidl --min_sdk_version=34 --version=1 --lang=cpp --ninja -I ${base_dir} "${base_dir}/${src}" --header_out ${GENERATED_DIR}/include -o ${GENERATED_DIR}
             DEPENDS ${base_dir}/${src}
             COMMENT "[AIDL] ${src} -> ${_OUTPUT}"
             VERBATIM
